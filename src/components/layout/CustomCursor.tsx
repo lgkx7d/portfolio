@@ -8,7 +8,7 @@ export function CustomCursor() {
   const dotRef = useRef<HTMLDivElement | null>(null);
   const trailCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const [cursorText, setCursorText] = useState("");
-  const [cursorState, setCursorState] = useState<"default" | "hover" | "view" | "drag" | "studio" | "explore" | "external">("default");
+  const [cursorState, setCursorState] = useState<"default" | "hover" | "view" | "drag" | "studio" | "explore" | "move" | "external">("default");
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -45,6 +45,9 @@ export function CustomCursor() {
         } else if (type === "explore") {
           setCursorState("explore");
           setCursorText("EXPLORE ↗");
+        } else if (type === "move") {
+          setCursorState("move");
+          setCursorText("MOVE");
         } else if (type === "external") {
           setCursorState("external");
           setCursorText("OPEN ↗");
@@ -74,17 +77,14 @@ export function CustomCursor() {
     const lerp = (a: number, b: number, n: number) => (1 - n) * a + n * b;
 
     const render = () => {
-      // Lerped positioning
       posX = lerp(posX, mouseX, 0.18);
       posY = lerp(posY, mouseY, 0.18);
 
-      // Velocity calculation
       const vx = mouseX - lastMouseX;
       const vy = mouseY - lastMouseY;
       const speed = Math.sqrt(vx * vx + vy * vy);
       const angle = Math.atan2(vy, vx) * (180 / Math.PI);
 
-      // Apply position & stretch transform
       const stretchScaleX = 1 + Math.min(speed * 0.015, 0.6);
       const stretchScaleY = 1 - Math.min(speed * 0.008, 0.3);
 
@@ -102,7 +102,6 @@ export function CustomCursor() {
         gsap.set(dot, { x: mouseX, y: mouseY });
       }
 
-      // Draw subtle trail canvas if speed > 10
       const canvas = trailCanvasRef.current;
       if (canvas) {
         const ctx = canvas.getContext("2d");
@@ -136,13 +135,11 @@ export function CustomCursor() {
 
   return (
     <>
-      {/* Precision inner dot */}
       <div
         ref={dotRef}
         className="pointer-events-none fixed left-0 top-0 z-[9999] h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ink mix-blend-difference transition-opacity duration-300"
       />
 
-      {/* Motion trail canvas */}
       <canvas
         ref={trailCanvasRef}
         width={typeof window !== "undefined" ? window.innerWidth : 1200}
@@ -150,17 +147,14 @@ export function CustomCursor() {
         className="pointer-events-none fixed inset-0 z-[9997] h-full w-full"
       />
 
-      {/* Main velocity follower container */}
       <div
         ref={cursorRef}
         className={`pointer-events-none fixed left-0 top-0 z-[9998] flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-ink/40 transition-all duration-300 ${
           cursorState === "studio" || cursorState === "explore"
             ? "h-24 px-6 rounded-full border-terracotta bg-terracotta text-white font-bold text-center"
-            : cursorState === "view"
-            ? "h-20 w-20 border-terracotta bg-terracotta text-white"
-            : cursorState === "external"
-            ? "h-20 w-20 border-ink bg-ink text-ivory"
-            : cursorState === "drag"
+            : cursorState === "move" || cursorState === "view"
+            ? "h-20 w-20 border-terracotta bg-terracotta text-white font-bold"
+            : cursorState === "external" || cursorState === "drag"
             ? "h-16 w-16 border-ink bg-ink text-ivory"
             : cursorState === "hover"
             ? "h-12 w-12 border-ink/80 bg-ink/5"

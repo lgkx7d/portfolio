@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLenis } from "@/hooks/useLenis";
 import { useMousePosition } from "@/hooks/useMousePosition";
 import { Loader } from "@/components/ui/Loader";
@@ -21,10 +21,24 @@ import { Project } from "@/data/portfolio";
 export default function Home() {
   const [loadingComplete, setLoadingComplete] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [isPressed, setIsPressed] = useState(false);
 
   // Initialize Lenis smooth scrolling & mouse tracking
   useLenis();
   const mouse = useMousePosition();
+
+  useEffect(() => {
+    const handleMouseDown = () => setIsPressed(true);
+    const handleMouseUp = () => setIsPressed(false);
+
+    window.addEventListener("mousedown", handleMouseDown);
+    window.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      window.removeEventListener("mousedown", handleMouseDown);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, []);
 
   return (
     <>
@@ -33,7 +47,7 @@ export default function Home() {
       )}
 
       {/* R3F Fixed WebGL Canvas */}
-      <SceneCanvas mouse={mouse} />
+      <SceneCanvas mouse={mouse} isPressed={isPressed} />
 
       {/* Continuous Page Sections */}
       <div className="relative z-10 space-y-0">

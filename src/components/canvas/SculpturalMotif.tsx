@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Float, MeshTransmissionMaterial, Text3D, Center } from "@react-three/drei";
+import { Float, MeshTransmissionMaterial } from "@react-three/drei";
 import * as THREE from "three";
 
 interface SculpturalMotifProps {
@@ -13,70 +13,75 @@ interface SculpturalMotifProps {
     normalizedY: number;
     speed?: number;
   }>;
+  isPressed?: boolean;
 }
 
-export function SculpturalMotif({ mouse }: SculpturalMotifProps) {
+export function SculpturalMotif({ mouse, isPressed }: SculpturalMotifProps) {
   const groupRef = useRef<THREE.Group>(null);
-  const mesh1Ref = useRef<THREE.Mesh>(null);
-  const mesh2Ref = useRef<THREE.Mesh>(null);
-  const outerRingRef = useRef<THREE.Mesh>(null);
+  const lMeshRef = useRef<THREE.Mesh>(null);
+  const pMeshRef = useRef<THREE.Mesh>(null);
+  const orbitRingRef = useRef<THREE.Mesh>(null);
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
 
-    // Smooth continuous rotation
-    groupRef.current.rotation.y += delta * 0.15;
+    // Slow continuous rotation
+    groupRef.current.rotation.y += delta * 0.12;
 
-    if (mesh1Ref.current) {
-      mesh1Ref.current.rotation.x += delta * 0.25;
-      mesh1Ref.current.rotation.z += delta * 0.15;
+    if (lMeshRef.current) {
+      lMeshRef.current.rotation.x += delta * 0.2;
+      lMeshRef.current.rotation.z += delta * 0.1;
     }
 
-    if (mesh2Ref.current) {
-      mesh2Ref.current.rotation.y -= delta * 0.3;
-      mesh2Ref.current.rotation.x += delta * 0.1;
+    if (pMeshRef.current) {
+      pMeshRef.current.rotation.y -= delta * 0.25;
+      pMeshRef.current.rotation.x += delta * 0.15;
     }
 
-    if (outerRingRef.current) {
-      outerRingRef.current.rotation.x -= delta * 0.1;
-      outerRingRef.current.rotation.z += delta * 0.2;
+    if (orbitRingRef.current) {
+      orbitRingRef.current.rotation.x -= delta * 0.08;
+      orbitRingRef.current.rotation.z += delta * 0.18;
     }
 
-    // Pointer parallax reaction
+    // Pointer tilt
     const targetRotX = mouse.current.normalizedY * 0.35;
     const targetRotY = mouse.current.normalizedX * 0.35;
 
     groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, targetRotX, 0.05);
     groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetRotY, 0.05);
+
+    // Mouse Press Tension (Advance LP sculpture toward camera)
+    const targetZ = isPressed ? 1.5 : 0;
+    groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, targetZ, 0.1);
   });
 
   return (
-    <Float speed={2} rotationIntensity={0.6} floatIntensity={1}>
+    <Float speed={1.8} rotationIntensity={0.5} floatIntensity={0.8}>
       <group ref={groupRef} position={[0, 0, 0]}>
-        {/* Core LP Sculptural Geometry 1 (Interlocking Icosahedron) */}
-        <mesh ref={mesh1Ref} scale={1.6}>
+        {/* Sculptural Mesh 1: Interlocking L Geometry */}
+        <mesh ref={lMeshRef} scale={1.7}>
           <icosahedronGeometry args={[1, 2]} />
           <MeshTransmissionMaterial
             backside
             samples={6}
             resolution={256}
             transmission={0.88}
-            roughness={0.12}
+            roughness={0.15}
             clearcoat={1}
             clearcoatRoughness={0.1}
-            ior={1.38}
+            ior={1.4}
             chromaticAberration={0.08}
             anisotropy={0.15}
-            distortion={0.25}
+            distortion={0.2}
             distortionScale={0.3}
             temporalDistortion={0.1}
             color="#FFFFFF"
           />
         </mesh>
 
-        {/* Interlocking LP Ring (Geometry 2) */}
-        <mesh ref={mesh2Ref} scale={1.2} position={[0, 0, 0]}>
-          <octahedronGeometry args={[1.2, 0]} />
+        {/* Sculptural Mesh 2: Interlocking P Geometry Wireframe */}
+        <mesh ref={pMeshRef} scale={1.3} position={[0, 0, 0]}>
+          <octahedronGeometry args={[1.3, 0]} />
           <meshStandardMaterial
             color="#111111"
             metalness={0.9}
@@ -85,9 +90,9 @@ export function SculpturalMotif({ mouse }: SculpturalMotifProps) {
           />
         </mesh>
 
-        {/* Outer Sculptural Orbit Ring */}
-        <mesh ref={outerRingRef} scale={2.4}>
-          <torusGeometry args={[1, 0.018, 16, 100]} />
+        {/* Outer Orbit Ring */}
+        <mesh ref={orbitRingRef} scale={2.5}>
+          <torusGeometry args={[1, 0.016, 16, 100]} />
           <meshStandardMaterial
             color="#D44D35"
             metalness={0.8}
