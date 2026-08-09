@@ -10,6 +10,7 @@ interface LoaderProps {
 
 export function Loader({ onComplete }: LoaderProps) {
   const [progress, setProgress] = useState(0);
+  const [isHidden, setIsHidden] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const lpMarkRef = useRef<HTMLDivElement | null>(null);
   const lineRef = useRef<HTMLDivElement | null>(null);
@@ -23,47 +24,51 @@ export function Loader({ onComplete }: LoaderProps) {
 
     gsap.to(obj, {
       value: 100,
-      duration: 1.4,
+      duration: 1.2,
       ease: "power2.inOut",
       onUpdate: () => {
         setProgress(Math.floor(obj.value));
       },
       onComplete: () => {
-        // Continuous Transformation: LP Mark -> Horizontal Line -> Viewport Expand
         const tl = gsap.timeline({
-          onComplete: () => onComplete(),
+          onComplete: () => {
+            setIsHidden(true);
+            onComplete();
+          },
         });
 
         tl.to(textRef.current, {
           opacity: 0,
-          duration: 0.3,
+          duration: 0.2,
           ease: "power2.out",
         })
           .to(lpMark, {
-            scaleX: 12,
+            scaleX: 10,
             scaleY: 0.05,
-            duration: 0.5,
+            duration: 0.4,
             ease: "power4.inOut",
           })
           .to(line, {
             scaleY: 80,
             opacity: 0,
-            duration: 0.6,
+            duration: 0.5,
             ease: "power4.inOut",
           })
           .to(container, {
             clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)",
-            duration: 0.5,
+            duration: 0.4,
             ease: "power3.inOut",
           }, "-=0.3");
       },
     });
   }, [onComplete]);
 
+  if (isHidden) return null;
+
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-[9999] flex flex-col justify-between bg-ink px-8 py-12 text-ivory"
+      className="fixed inset-0 z-[9999] flex flex-col justify-between bg-ink px-8 py-12 text-ivory pointer-events-auto"
       style={{ clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)" }}
     >
       {/* Top Header */}

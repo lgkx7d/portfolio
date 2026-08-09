@@ -43,18 +43,18 @@ export function IntroStatement() {
   return (
     <section
       ref={containerRef}
-      className="relative min-h-[70vh] flex flex-col justify-center px-6 py-24 md:px-12 bg-ivory text-ink border-t border-ink/10"
+      className="relative min-h-[70vh] flex flex-col justify-center px-4 py-24 md:px-12 bg-ivory text-ink border-t border-ink/10 max-w-full overflow-hidden"
     >
-      <div className="mx-auto max-w-6xl space-y-6">
+      <div className="mx-auto max-w-6xl space-y-6 max-w-full overflow-hidden">
         <span className="font-mono text-xs uppercase tracking-widest text-terracotta">
           01 // STATEMENT
         </span>
 
-        <div className="font-display text-3xl font-extrabold tracking-tight sm:text-5xl lg:text-7xl leading-tight">
+        <div className="font-display text-2xl font-extrabold tracking-tight sm:text-5xl lg:text-7xl leading-tight max-w-full overflow-hidden break-words">
           <div ref={line1Ref} className="overflow-hidden">
             I DESIGN AND BUILD DIGITAL
           </div>
-          <div ref={line2Ref} className="overflow-hidden text-ink-muted pl-4 sm:pl-12">
+          <div ref={line2Ref} className="overflow-hidden text-ink-muted sm:pl-12">
             EXPERIENCES THAT PEOPLE
           </div>
           <div ref={line3Ref} className="overflow-hidden text-terracotta">

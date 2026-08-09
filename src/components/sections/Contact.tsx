@@ -33,15 +33,15 @@ export function Contact() {
         {/* Action Controls */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
           {/* Email Copy CTA */}
-          <div className="md:col-span-8 space-y-4">
+          <div className="relative z-20 md:col-span-8 space-y-4">
             <p className="font-sans text-xs uppercase tracking-widest text-ivory/60">
               DIRECT INQUIRIES & COLLABORATIONS
             </p>
             <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
               <a
                 href={`mailto:${PORTFOLIO_DATA.personal.email}`}
-                className="font-display text-2xl sm:text-4xl font-bold tracking-tight text-ivory hover:text-terracotta transition-colors underline decoration-terracotta/40 underline-offset-8"
-                data-cursor="hover"
+                className="font-display text-xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-ivory hover:text-terracotta transition-colors underline decoration-terracotta/40 underline-offset-8 break-all"
+                data-cursor="external"
               >
                 {PORTFOLIO_DATA.personal.email}
               </a>
@@ -65,7 +65,7 @@ export function Contact() {
           </div>
 
           {/* Social Columns */}
-          <div className="md:col-span-4 space-y-3 font-sans text-xs">
+          <div className="relative z-10 md:col-span-4 space-y-3 font-sans text-xs">
             <p className="font-mono text-xs uppercase tracking-widest text-ivory/40">SOCIAL ECOSYSTEM</p>
             <div className="grid grid-cols-2 gap-3">
               {PORTFOLIO_DATA.personal.socials.map((social) => (
@@ -75,7 +75,7 @@ export function Contact() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group flex items-center justify-between rounded-lg border border-ivory/10 p-3 hover:border-terracotta hover:bg-ivory/5 transition-all"
-                  data-cursor="hover"
+                  data-cursor="external"
                 >
                   <span className="font-mono font-bold">{social.name}</span>
                   <ArrowUpRight className="h-3.5 w-3.5 text-terracotta transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />

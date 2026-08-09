@@ -7,8 +7,6 @@ import { PORTFOLIO_DATA } from "@/data/portfolio";
 import { ArrowDown, Plus } from "lucide-react";
 import Image from "next/image";
 
-const IDENTITIES = ["STUDENT", "WEB DEVELOPER", "DESIGNER", "CREATIVE BUILDER"];
-
 export function Hero() {
   const heroRef = useRef<HTMLDivElement | null>(null);
   const title1Ref = useRef<HTMLHeadingElement | null>(null);
@@ -20,7 +18,7 @@ export function Hero() {
 
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-  // Mouse Parallax Effect (Cutout portrait: 8-12px, Foreground: 16-20px, Background: -8px)
+  // Mouse Parallax Effect
   useEffect(() => {
     let lerpX = 0;
     let lerpY = 0;
@@ -30,8 +28,8 @@ export function Hero() {
 
     const handleMouseMove = (e: MouseEvent) => {
       const { innerWidth, innerHeight } = window;
-      targetX = (e.clientX / innerWidth - 0.5) * 20;
-      targetY = (e.clientY / innerHeight - 0.5) * 20;
+      targetX = (e.clientX / innerWidth - 0.5) * 14;
+      targetY = (e.clientY / innerHeight - 0.5) * 14;
     };
 
     window.addEventListener("mousemove", handleMouseMove);
@@ -67,7 +65,7 @@ export function Hero() {
     });
   }, []);
 
-  // 5-Phase Master Scroll Sequence Timeline with Scoped GSAP Context
+  // 5-Phase Master Scroll Sequence Timeline
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
 
@@ -91,28 +89,20 @@ export function Hero() {
       });
 
       masterTl
-        // Phase 1 (0–20%): Stable initial hero
-        // Phase 2 (20–40%): LIKITH moves left, PENDEM moves right
-        .to(title1, { x: -80, y: -40, ease: "none" }, 0.2)
-        .to(title2, { x: 80, y: 40, ease: "none" }, 0.2)
-
-        // Phase 3 (40–60%): Portrait enlarges and shifts forward
-        .to(portrait, { scale: 1.12, y: 80, ease: "none" }, 0.4)
-
-        // Phase 4 (60–80%): Annotations move to screen edges
-        .to(annotations, { opacity: 0, y: -40, ease: "none" }, 0.6)
+        .to(title1, { x: -40, y: -20, ease: "none" }, 0.2)
+        .to(title2, { x: 40, y: 20, ease: "none" }, 0.2)
+        .to(portrait, { scale: 1.05, y: 40, ease: "none" }, 0.4)
+        .to(annotations, { opacity: 0, y: -20, ease: "none" }, 0.6)
         .fromTo(
           transitionWord,
-          { scale: 0.3, opacity: 0, y: 120 },
+          { scale: 0.3, opacity: 0, y: 60 },
           { scale: 1, opacity: 1, y: 0, ease: "power2.out" },
           0.65
         )
-
-        // Phase 5 (80–100%): 'BUILD' fills viewport and acts as transition mask into next scene
         .to(
           transitionWord,
           {
-            scale: 22,
+            scale: 16,
             opacity: 0,
             ease: "power4.in",
           },
@@ -127,14 +117,14 @@ export function Hero() {
     <section
       id="hero"
       ref={heroRef}
-      className="relative flex min-h-screen flex-col justify-between px-6 pt-24 pb-12 md:px-16 overflow-hidden bg-ivory select-none"
+      className="relative flex min-h-screen max-w-full flex-col justify-between px-4 pt-24 pb-12 sm:px-8 md:px-16 overflow-hidden bg-ivory select-none"
     >
       {/* Micro Print Registration Marks */}
-      <div className="pointer-events-none absolute top-6 left-6 flex items-center space-x-2 font-mono text-[10px] text-ink/30 uppercase">
+      <div className="pointer-events-none absolute top-6 left-4 sm:left-6 flex items-center space-x-2 font-mono text-[10px] text-ink/30 uppercase">
         <Plus className="h-3 w-3" />
         <span>REG // 01</span>
       </div>
-      <div className="pointer-events-none absolute top-6 right-6 flex items-center space-x-2 font-mono text-[10px] text-ink/30 uppercase">
+      <div className="pointer-events-none absolute top-6 right-4 sm:right-6 flex items-center space-x-2 font-mono text-[10px] text-ink/30 uppercase">
         <span>ISSUE // 2026</span>
         <Plus className="h-3 w-3" />
       </div>
@@ -142,7 +132,7 @@ export function Hero() {
       {/* Giant Transition Mask Word 'BUILD' (Phase 4-5) */}
       <div
         ref={transitionWordRef}
-        className="pointer-events-none fixed inset-0 z-[600] flex items-center justify-center font-display text-[26vw] font-black tracking-tighter text-terracotta opacity-0 select-none"
+        className="pointer-events-none fixed inset-0 z-[600] flex items-center justify-center font-display text-[18vw] font-black tracking-tighter text-terracotta opacity-0 select-none max-w-full overflow-hidden"
       >
         BUILD
       </div>
@@ -150,36 +140,36 @@ export function Hero() {
       {/* Top Editorial Annotations Header */}
       <div
         ref={annotationsRef}
-        className="relative z-10 flex flex-col justify-between space-y-2 md:flex-row md:items-start border-b border-ink/10 pb-6 font-mono text-xs uppercase tracking-widest text-ink-muted"
+        className="relative z-10 flex flex-col justify-between space-y-2 md:flex-row md:items-start border-b border-ink/10 pb-6 font-mono text-xs uppercase tracking-widest text-ink-muted max-w-full overflow-hidden"
         style={{ transform: `translate3d(${mousePos.x * 0.2}px, ${mousePos.y * 0.2}px, 0)` }}
       >
         <div className="space-y-1">
           <p className="font-bold text-ink">{PORTFOLIO_DATA.personal.name}</p>
-          <p className="text-terracotta">{IDENTITIES.join(" / ")}</p>
+          <p className="text-terracotta text-[10px] sm:text-xs">STUDENT / DEV / DESIGNER / BUILDER</p>
         </div>
 
-        <div className="text-right font-mono text-xs space-y-1">
-          <p className="text-ink">HYDERABAD / INDIA</p>
+        <div className="text-left md:text-right font-mono text-xs space-y-1">
+          <p className="text-ink">{PORTFOLIO_DATA.personal.location}</p>
           <p className="text-terracotta">VOL. 2026 // AVAILABLE</p>
         </div>
       </div>
 
       {/* Asymmetrical Editorial Magazine Cover Composition */}
-      <div className="relative z-10 my-auto py-8 grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+      <div className="relative z-10 my-auto py-4 grid grid-cols-1 md:grid-cols-12 gap-2 items-center max-w-full overflow-hidden">
         {/* Layer 1: Background Title LIKITH (Top-Left) */}
         <div
           ref={title1Ref}
-          className="relative z-0 md:col-span-12 font-display text-[14vw] font-black tracking-tighter leading-[0.8] text-ink"
-          style={{ transform: `translate3d(${-mousePos.x * 0.4}px, ${-mousePos.y * 0.4}px, 0)` }}
+          className="relative z-0 md:col-span-12 font-display text-[10vw] sm:text-[12vw] font-black tracking-tighter leading-[0.85] text-ink break-all max-w-full"
+          style={{ transform: `translate3d(${-mousePos.x * 0.3}px, ${-mousePos.y * 0.3}px, 0)` }}
         >
-          LIKITH
+          <h1>LIKITH</h1>
         </div>
 
         {/* Layer 2: Cutout Silhouette Portrait */}
         <div
           ref={portraitRef}
-          className="relative z-10 md:col-span-6 -mt-12 md:-mt-24 md:ml-24 h-[420px] sm:h-[520px] w-full max-w-md overflow-hidden"
-          style={{ transform: `translate3d(${mousePos.x * 0.6}px, ${mousePos.y * 0.6}px, 0)` }}
+          className="relative z-10 md:col-span-6 -mt-6 md:-mt-16 md:ml-16 h-[280px] sm:h-[440px] w-full max-w-xs sm:max-w-md overflow-hidden"
+          style={{ transform: `translate3d(${mousePos.x * 0.5}px, ${mousePos.y * 0.5}px, 0)` }}
           data-cursor="move"
         >
           <div className="relative h-full w-full grayscale contrast-125 filter mix-blend-multiply">
@@ -196,14 +186,14 @@ export function Hero() {
         {/* Layer 3: Foreground Title PENDEM. (Bottom-Right, Staggered) */}
         <div
           ref={title2Ref}
-          className="relative z-20 md:col-span-12 -mt-16 md:-mt-32 md:pl-32 font-display text-[14vw] font-black tracking-tighter leading-[0.8] text-ink text-right md:text-left"
-          style={{ transform: `translate3d(${mousePos.x * 0.9}px, ${mousePos.y * 0.9}px, 0)` }}
+          className="relative z-20 md:col-span-12 -mt-8 md:-mt-24 pl-0 md:pl-24 font-display text-[10vw] sm:text-[12vw] font-black tracking-tighter leading-[0.85] text-ink text-left max-w-full"
+          style={{ transform: `translate3d(${mousePos.x * 0.7}px, ${mousePos.y * 0.7}px, 0)` }}
         >
-          PENDEM<span className="text-terracotta">.</span>
+          <h1>PENDEM<span className="text-terracotta">.</span></h1>
 
           {/* SVG Path-Drawn Underline */}
           <svg
-            className="absolute -bottom-4 left-0 md:left-32 w-64 md:w-96 h-8 text-terracotta pointer-events-none"
+            className="absolute -bottom-3 left-0 md:left-24 w-40 sm:w-80 h-6 text-terracotta pointer-events-none max-w-full"
             viewBox="0 0 300 24"
             fill="none"
           >
@@ -219,14 +209,14 @@ export function Hero() {
       </div>
 
       {/* Bottom Editorial Details & Kinetic Scroll Prompt */}
-      <div className="relative z-10 flex items-end justify-between border-t border-ink/10 pt-6 font-mono text-xs uppercase tracking-widest text-ink-muted">
+      <div className="relative z-10 flex items-end justify-between border-t border-ink/10 pt-6 font-mono text-xs uppercase tracking-widest text-ink-muted max-w-full overflow-hidden">
         <div className="space-y-1">
           <p className="font-bold text-ink">EDITORIAL COVER EDITION</p>
-          <p className="text-terracotta">EXPLORING THE INTERSECTION OF CODE & DESIGN</p>
+          <p className="text-terracotta text-[10px] sm:text-xs">CODE × DESIGN INTERSECTION</p>
         </div>
 
         <div className="flex items-center space-x-2 font-mono text-ink font-bold">
-          <span>SCROLL TO UNFOLD</span>
+          <span>SCROLL</span>
           <ArrowDown className="h-4 w-4 animate-bounce text-terracotta" />
         </div>
       </div>
