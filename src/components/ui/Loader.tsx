@@ -15,6 +15,11 @@ export function Loader({ onComplete }: LoaderProps) {
   const lpMarkRef = useRef<HTMLDivElement | null>(null);
   const lineRef = useRef<HTMLDivElement | null>(null);
   const textRef = useRef<HTMLDivElement | null>(null);
+  const onCompleteRef = useRef(onComplete);
+
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
 
   useEffect(() => {
     const obj = { value: 0 };
@@ -22,9 +27,15 @@ export function Loader({ onComplete }: LoaderProps) {
     const line = lineRef.current;
     const container = containerRef.current;
 
-    gsap.to(obj, {
+    // Safety fallback timer: guarantee loader unmounts within 2.5s even if tab is in background
+    const safetyTimer = setTimeout(() => {
+      setIsHidden(true);
+      if (onCompleteRef.current) onCompleteRef.current();
+    }, 2500);
+
+    const tween = gsap.to(obj, {
       value: 100,
-      duration: 1.2,
+      duration: 1.0,
       ease: "power2.inOut",
       onUpdate: () => {
         setProgress(Math.floor(obj.value));
@@ -32,43 +43,49 @@ export function Loader({ onComplete }: LoaderProps) {
       onComplete: () => {
         const tl = gsap.timeline({
           onComplete: () => {
+            clearTimeout(safetyTimer);
             setIsHidden(true);
-            onComplete();
+            if (onCompleteRef.current) onCompleteRef.current();
           },
         });
 
         tl.to(textRef.current, {
           opacity: 0,
-          duration: 0.2,
+          duration: 0.15,
           ease: "power2.out",
         })
           .to(lpMark, {
             scaleX: 10,
             scaleY: 0.05,
-            duration: 0.4,
+            duration: 0.3,
             ease: "power4.inOut",
           })
           .to(line, {
             scaleY: 80,
             opacity: 0,
-            duration: 0.5,
+            duration: 0.35,
             ease: "power4.inOut",
           })
           .to(container, {
             clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)",
-            duration: 0.4,
+            duration: 0.3,
             ease: "power3.inOut",
-          }, "-=0.3");
+          }, "-=0.2");
       },
     });
-  }, [onComplete]);
+
+    return () => {
+      clearTimeout(safetyTimer);
+      tween.kill();
+    };
+  }, []); // Run ONCE on mount
 
   if (isHidden) return null;
 
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-[9999] flex flex-col justify-between bg-ink px-8 py-12 text-ivory pointer-events-auto"
+      className="fixed inset-0 z-[9999] flex flex-col justify-between bg-ink px-8 py-12 text-ivory pointer-events-auto select-none"
       style={{ clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)" }}
     >
       {/* Top Header */}

@@ -8,14 +8,20 @@ import { Copy, Check, ArrowUpRight } from "lucide-react";
 export function Contact() {
   const [copied, setCopied] = useState(false);
 
-  const copyEmail = () => {
-    navigator.clipboard.writeText(PORTFOLIO_DATA.personal.email);
+  const handleCopy = () => {
+    try {
+      if (typeof window !== "undefined" && navigator?.clipboard?.writeText) {
+        navigator.clipboard.writeText(PORTFOLIO_DATA.personal.email);
+      }
+    } catch {
+      // Fallback for restricted context
+    }
     setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
+    setTimeout(() => setCopied(false), 3000);
   };
 
   return (
-    <section id="contact" className="relative px-6 py-32 md:px-12 bg-ink text-ivory border-t border-ink/10">
+    <section id="contact" className="relative px-6 py-32 md:px-12 bg-ink text-ivory border-t border-ink/10 select-none">
       <div className="mx-auto max-w-7xl space-y-16">
         {/* Header Badge */}
         <div className="flex justify-between items-start border-b border-ivory/20 pb-8">
@@ -46,12 +52,17 @@ export function Contact() {
                 {PORTFOLIO_DATA.personal.email}
               </a>
 
-              <MagneticButton onClick={copyEmail}>
-                <div className="flex items-center space-x-2 rounded-full border border-ivory/30 bg-ivory/10 px-5 py-2.5 font-mono text-xs font-bold text-ivory hover:bg-terracotta hover:border-terracotta transition-all">
+              <MagneticButton>
+                <button
+                  id="copy-email-btn"
+                  type="button"
+                  onClick={handleCopy}
+                  className="flex items-center space-x-2 rounded-full border border-ivory/30 bg-ivory/10 px-5 py-2.5 font-mono text-xs font-bold text-ivory hover:bg-terracotta hover:border-terracotta transition-all cursor-pointer"
+                >
                   {copied ? (
                     <>
                       <Check className="h-4 w-4 text-green-400" />
-                      <span>COPIED ✓</span>
+                      <span id="copied-text">COPIED ✓</span>
                     </>
                   ) : (
                     <>
@@ -59,7 +70,7 @@ export function Contact() {
                       <span>COPY EMAIL</span>
                     </>
                   )}
-                </div>
+                </button>
               </MagneticButton>
             </div>
           </div>

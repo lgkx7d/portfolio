@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLenis } from "@/hooks/useLenis";
 import { useMousePosition } from "@/hooks/useMousePosition";
 import { Loader } from "@/components/ui/Loader";
@@ -40,10 +40,14 @@ export default function Home() {
     };
   }, []);
 
+  const handleLoaderComplete = useCallback(() => {
+    setLoadingComplete(true);
+  }, []);
+
   return (
     <>
       {!loadingComplete && (
-        <Loader onComplete={() => setLoadingComplete(true)} />
+        <Loader onComplete={handleLoaderComplete} />
       )}
 
       {/* R3F Fixed WebGL Canvas */}
