@@ -37,7 +37,7 @@ export function SelectedWork({ onSelectProject }: SelectedWorkProps) {
 
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
+  }, [activeCategory]);
 
   return (
     <section id="work" className="relative px-6 py-24 md:px-12 bg-ivory border-t border-ink/10">

@@ -13,27 +13,31 @@ export function IntroStatement() {
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
 
-    const lines = [line1Ref.current, line2Ref.current, line3Ref.current];
+    const ctx = gsap.context(() => {
+      const lines = [line1Ref.current, line2Ref.current, line3Ref.current];
 
-    lines.forEach((line, index) => {
-      if (!line) return;
+      lines.forEach((line) => {
+        if (!line) return;
 
-      gsap.fromTo(
-        line,
-        { y: 60, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 1,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: line,
-            start: "top 85%",
-            toggleActions: "play none none reverse",
-          },
-        }
-      );
-    });
+        gsap.fromTo(
+          line,
+          { y: 60, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: line,
+              start: "top 85%",
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
+      });
+    }, containerRef);
+
+    return () => ctx.revert();
   }, []);
 
   return (

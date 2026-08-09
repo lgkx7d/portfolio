@@ -7,6 +7,8 @@ import { PORTFOLIO_DATA } from "@/data/portfolio";
 import { ArrowDown, Plus } from "lucide-react";
 import Image from "next/image";
 
+const IDENTITIES = ["STUDENT", "WEB DEVELOPER", "DESIGNER", "CREATIVE BUILDER"];
+
 export function Hero() {
   const heroRef = useRef<HTMLDivElement | null>(null);
   const title1Ref = useRef<HTMLHeadingElement | null>(null);
@@ -65,56 +67,60 @@ export function Hero() {
     });
   }, []);
 
-  // 5-Phase Master Scroll Sequence Timeline
+  // 5-Phase Master Scroll Sequence Timeline with Scoped GSAP Context
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
 
-    const title1 = title1Ref.current;
-    const title2 = title2Ref.current;
-    const portrait = portraitRef.current;
-    const annotations = annotationsRef.current;
-    const transitionWord = transitionWordRef.current;
+    const ctx = gsap.context(() => {
+      const title1 = title1Ref.current;
+      const title2 = title2Ref.current;
+      const portrait = portraitRef.current;
+      const annotations = annotationsRef.current;
+      const transitionWord = transitionWordRef.current;
 
-    if (!title1 || !title2 || !portrait || !annotations || !transitionWord) return;
+      if (!title1 || !title2 || !portrait || !annotations || !transitionWord) return;
 
-    const masterTl = gsap.timeline({
-      scrollTrigger: {
-        trigger: heroRef.current,
-        start: "top top",
-        end: "bottom top",
-        scrub: 0.8,
-        pin: true,
-      },
-    });
-
-    masterTl
-      // Phase 1 (0–20%): Stable initial hero
-      // Phase 2 (20–40%): LIKITH moves left, PENDEM moves right
-      .to(title1, { x: -80, y: -40, ease: "none" }, 0.2)
-      .to(title2, { x: 80, y: 40, ease: "none" }, 0.2)
-
-      // Phase 3 (40–60%): Portrait enlarges and shifts forward
-      .to(portrait, { scale: 1.12, y: 80, ease: "none" }, 0.4)
-
-      // Phase 4 (60–80%): Annotations move to screen edges
-      .to(annotations, { opacity: 0, y: -40, ease: "none" }, 0.6)
-      .fromTo(
-        transitionWord,
-        { scale: 0.3, opacity: 0, y: 120 },
-        { scale: 1, opacity: 1, y: 0, ease: "power2.out" },
-        0.65
-      )
-
-      // Phase 5 (80–100%): 'BUILD' fills viewport and acts as transition mask into next scene
-      .to(
-        transitionWord,
-        {
-          scale: 22,
-          opacity: 0,
-          ease: "power4.in",
+      const masterTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: heroRef.current,
+          start: "top top",
+          end: "bottom top",
+          scrub: 0.8,
+          pin: true,
         },
-        0.85
-      );
+      });
+
+      masterTl
+        // Phase 1 (0–20%): Stable initial hero
+        // Phase 2 (20–40%): LIKITH moves left, PENDEM moves right
+        .to(title1, { x: -80, y: -40, ease: "none" }, 0.2)
+        .to(title2, { x: 80, y: 40, ease: "none" }, 0.2)
+
+        // Phase 3 (40–60%): Portrait enlarges and shifts forward
+        .to(portrait, { scale: 1.12, y: 80, ease: "none" }, 0.4)
+
+        // Phase 4 (60–80%): Annotations move to screen edges
+        .to(annotations, { opacity: 0, y: -40, ease: "none" }, 0.6)
+        .fromTo(
+          transitionWord,
+          { scale: 0.3, opacity: 0, y: 120 },
+          { scale: 1, opacity: 1, y: 0, ease: "power2.out" },
+          0.65
+        )
+
+        // Phase 5 (80–100%): 'BUILD' fills viewport and acts as transition mask into next scene
+        .to(
+          transitionWord,
+          {
+            scale: 22,
+            opacity: 0,
+            ease: "power4.in",
+          },
+          0.85
+        );
+    }, heroRef);
+
+    return () => ctx.revert();
   }, []);
 
   return (
@@ -149,7 +155,7 @@ export function Hero() {
       >
         <div className="space-y-1">
           <p className="font-bold text-ink">{PORTFOLIO_DATA.personal.name}</p>
-          <p className="text-terracotta">STUDENT / WEB DEVELOPER / DESIGNER / CREATIVE BUILDER</p>
+          <p className="text-terracotta">{IDENTITIES.join(" / ")}</p>
         </div>
 
         <div className="text-right font-mono text-xs space-y-1">
@@ -169,14 +175,13 @@ export function Hero() {
           LIKITH
         </div>
 
-        {/* Layer 2: Cutout Silhouette Portrait (Overlaps LIKITH & sits behind PENDEM.) */}
+        {/* Layer 2: Cutout Silhouette Portrait */}
         <div
           ref={portraitRef}
           className="relative z-10 md:col-span-6 -mt-12 md:-mt-24 md:ml-24 h-[420px] sm:h-[520px] w-full max-w-md overflow-hidden"
           style={{ transform: `translate3d(${mousePos.x * 0.6}px, ${mousePos.y * 0.6}px, 0)` }}
           data-cursor="move"
         >
-          {/* Cutout Silhouette Image with Transparent Mask (No Card Container) */}
           <div className="relative h-full w-full grayscale contrast-125 filter mix-blend-multiply">
             <Image
               src={PORTFOLIO_DATA.personal.portraitImage}

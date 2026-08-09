@@ -14,30 +14,32 @@ export function JourneyTimeline() {
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
 
-    const track = trackRef.current;
-    const trigger = triggerRef.current;
+    const ctx = gsap.context(() => {
+      const track = trackRef.current;
+      const trigger = triggerRef.current;
 
-    if (!track || !trigger) return;
+      if (!track || !trigger) return;
 
-    const matchMedia = gsap.matchMedia();
+      const matchMedia = gsap.matchMedia();
 
-    matchMedia.add("(min-width: 1024px)", () => {
-      const scrollWidth = track.scrollWidth - window.innerWidth + 160;
+      matchMedia.add("(min-width: 1024px)", () => {
+        const scrollWidth = track.scrollWidth - window.innerWidth + 160;
 
-      gsap.to(track, {
-        x: -scrollWidth,
-        ease: "none",
-        scrollTrigger: {
-          trigger: trigger,
-          pin: true,
-          scrub: 1,
-          end: () => `+=${scrollWidth}`,
-          invalidateOnRefresh: true,
-        },
+        gsap.to(track, {
+          x: -scrollWidth,
+          ease: "none",
+          scrollTrigger: {
+            trigger: trigger,
+            pin: true,
+            scrub: 1,
+            end: () => `+=${scrollWidth}`,
+            invalidateOnRefresh: true,
+          },
+        });
       });
-    });
+    }, triggerRef);
 
-    return () => matchMedia.revert();
+    return () => ctx.revert();
   }, []);
 
   return (

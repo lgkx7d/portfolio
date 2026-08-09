@@ -11,7 +11,6 @@ export interface MouseState {
   vy: number;
   speed: number;
   angle: number;
-  trail: Array<{ x: number; y: number }>;
 }
 
 export function useMousePosition() {
@@ -26,12 +25,12 @@ export function useMousePosition() {
     vy: 0,
     speed: 0,
     angle: 0,
-    trail: [],
   });
 
   useEffect(() => {
     let lastX = 0;
     let lastY = 0;
+    let animationFrameId: number;
 
     const handleMouseMove = (e: MouseEvent) => {
       const { innerWidth, innerHeight } = window;
@@ -43,14 +42,12 @@ export function useMousePosition() {
 
     window.addEventListener("mousemove", handleMouseMove);
 
-    let animationFrameId: number;
     const lerp = (start: number, end: number, factor: number) => start + (end - start) * factor;
 
     const update = () => {
       const currentX = lerp(mouse.current.x, mouse.current.targetX, 0.15);
       const currentY = lerp(mouse.current.y, mouse.current.targetY, 0.15);
 
-      // Velocity calculation
       const vx = currentX - lastX;
       const vy = currentY - lastY;
       const speed = Math.sqrt(vx * vx + vy * vy);
@@ -62,11 +59,6 @@ export function useMousePosition() {
       mouse.current.vy = vy;
       mouse.current.speed = speed;
       mouse.current.angle = angle;
-
-      // Update trail points
-      const trail = mouse.current.trail;
-      trail.unshift({ x: currentX, y: currentY });
-      if (trail.length > 5) trail.pop();
 
       lastX = currentX;
       lastY = currentY;
