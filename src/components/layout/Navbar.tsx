@@ -3,16 +3,23 @@
 import { useState, useEffect } from "react";
 import { PORTFOLIO_DATA } from "@/data/portfolio";
 import { ScrambleText } from "@/components/ui/ScrambleText";
+import { MagneticButton } from "@/components/ui/MagneticButton";
 import { MobileMenu } from "@/components/layout/MobileMenu";
 import { Menu } from "lucide-react";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 40);
+
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalHeight > 0) {
+        setScrollProgress((window.scrollY / totalHeight) * 100);
+      }
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -30,13 +37,19 @@ export function Navbar() {
     { label: "INDEX", id: "hero" },
     { label: "ABOUT", id: "about" },
     { label: "JOURNEY", id: "journey" },
-    { label: "WORK", id: "work" },
+    { label: "THINGS I MAKE", id: "work" },
     { label: "CAPABILITIES", id: "capabilities" },
     { label: "CONTACT", id: "contact" },
   ];
 
   return (
     <>
+      {/* Thin 2px Scroll Progress Bar */}
+      <div
+        className="fixed top-0 left-0 right-0 z-[900] h-[2px] bg-terracotta transition-all duration-150"
+        style={{ width: `${scrollProgress}%` }}
+      />
+
       <header
         className={`fixed top-0 left-0 right-0 z-[800] transition-all duration-300 ${
           scrolled ? "bg-ivory/80 py-4 backdrop-blur-md border-b border-ink/5" : "py-6 bg-transparent"
@@ -44,28 +57,23 @@ export function Navbar() {
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 md:px-12">
           {/* Logo / Name */}
-          <button
-            onClick={() => scrollToSection("hero")}
-            className="group flex items-center space-x-2 text-left"
-            data-cursor="hover"
-          >
-            <span className="h-2 w-2 rounded-full bg-terracotta transition-transform group-hover:scale-150" />
-            <span className="font-display text-sm font-bold tracking-widest text-ink">
-              {PORTFOLIO_DATA.personal.name}
-            </span>
-          </button>
+          <MagneticButton onClick={() => scrollToSection("hero")} strength={0.2}>
+            <div className="group flex items-center space-x-2 text-left">
+              <span className="h-2 w-2 rounded-full bg-terracotta transition-transform group-hover:scale-150" />
+              <span className="font-display text-sm font-bold tracking-widest text-ink">
+                {PORTFOLIO_DATA.personal.name}
+              </span>
+            </div>
+          </MagneticButton>
 
           {/* Desktop Links */}
           <nav className="hidden items-center space-x-8 md:flex">
             {navLinks.map((link) => (
-              <button
-                key={link.id}
-                onClick={() => scrollToSection(link.id)}
-                className="font-sans text-xs font-semibold tracking-widest text-ink/70 hover:text-terracotta transition-colors"
-                data-cursor="hover"
-              >
-                <ScrambleText text={link.label} />
-              </button>
+              <MagneticButton key={link.id} onClick={() => scrollToSection(link.id)} strength={0.25}>
+                <span className="font-sans text-xs font-semibold tracking-widest text-ink/70 hover:text-terracotta transition-colors">
+                  <ScrambleText text={link.label} />
+                </span>
+              </MagneticButton>
             ))}
           </nav>
 
