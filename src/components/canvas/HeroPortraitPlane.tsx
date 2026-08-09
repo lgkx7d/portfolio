@@ -5,7 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
 
-const HeroPortraitShader = {
+const CutoutPortraitShader = {
   uniforms: {
     uTexture: { value: null },
     uTime: { value: 0 },
@@ -16,7 +16,6 @@ const HeroPortraitShader = {
   },
   vertexShader: `
     varying vec2 vUv;
-    varying vec3 vPosition;
     uniform float uTime;
     uniform float uHover;
     uniform float uTension;
@@ -28,12 +27,8 @@ const HeroPortraitShader = {
       
       // Proximity wave displacement
       float dist = distance(uv, uMouse);
-      float wave = sin(dist * 12.0 - uTime * 3.0) * 0.08 * (uHover + uTension * 1.5);
+      float wave = sin(dist * 10.0 - uTime * 2.5) * 0.06 * (uHover + uTension * 1.5);
       pos.z += wave;
-
-      // Press tension pinch
-      pos.x *= (1.0 - uTension * 0.08 * sin(dist * 6.0));
-      pos.y *= (1.0 - uTension * 0.08 * cos(dist * 6.0));
 
       gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
     }
@@ -46,7 +41,6 @@ const HeroPortraitShader = {
     uniform float uVelocity;
     uniform float uTime;
 
-    // Pseudo-random noise
     float rand(vec2 co) {
       return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
     }
@@ -55,26 +49,30 @@ const HeroPortraitShader = {
       vec2 uv = vUv;
 
       // Velocity RGB edge split
-      float split = (0.012 * uHover + 0.025 * uTension + 0.005 * uVelocity);
+      float split = (0.01 * uHover + 0.02 * uTension + 0.004 * uVelocity);
       vec4 r = texture2D(uTexture, uv + vec2(split, 0.0));
       vec4 g = texture2D(uTexture, uv);
       vec4 b = texture2D(uTexture, uv - vec2(split, 0.0));
 
       vec3 color = vec3(r.r, g.g, b.b);
 
-      // Artistic Monochrome Thresholding
+      // High-Contrast Monochrome Editorial Thresholding
       float luminance = dot(color, vec3(0.299, 0.587, 0.114));
-      float threshold = smoothstep(0.2, 0.8, luminance);
+      float threshold = smoothstep(0.25, 0.75, luminance);
       vec3 monoColor = mix(vec3(0.07), vec3(0.96, 0.95, 0.94), threshold);
 
-      // Subtle Terracotta Tint on high velocity / tension
-      vec3 accentColor = mix(monoColor, vec3(0.83, 0.30, 0.21), uTension * 0.4);
+      // Subtle Terracotta Accent Tint on high velocity
+      vec3 finalColor = mix(monoColor, vec3(0.83, 0.30, 0.21), uVelocity * 0.2);
 
       // Film Grain Overlay
-      float noise = (rand(uv * uTime) - 0.5) * 0.06;
-      accentColor += noise;
+      float noise = (rand(uv * uTime) - 0.5) * 0.05;
+      finalColor += noise;
 
-      gl_FragColor = vec4(accentColor, 1.0);
+      // Elliptical Cutout Silhouette Mask (Transparent Edges)
+      vec2 center = uv - vec2(0.5);
+      float alpha = 1.0 - smoothstep(0.38, 0.5, length(center));
+
+      gl_FragColor = vec4(finalColor, alpha);
     }
   `,
 };
@@ -112,30 +110,27 @@ export function HeroPortraitPlane({ imageSrc, mouse, isPressed }: HeroPortraitPl
     const mat = meshRef.current.material as THREE.ShaderMaterial;
     mat.uniforms.uTime.value += delta;
 
-    // Target mouse UV
     const targetUvX = (mouse.current.normalizedX + 1) * 0.5;
     const targetUvY = (mouse.current.normalizedY + 1) * 0.5;
 
     mat.uniforms.uMouse.value.x = THREE.MathUtils.lerp(mat.uniforms.uMouse.value.x, targetUvX, 0.1);
     mat.uniforms.uMouse.value.y = THREE.MathUtils.lerp(mat.uniforms.uMouse.value.y, targetUvY, 0.1);
 
-    // Tension lerp on press
     const targetTension = isPressed ? 1 : 0;
     mat.uniforms.uTension.value = THREE.MathUtils.lerp(mat.uniforms.uTension.value, targetTension, 0.1);
 
-    // Velocity uniform lerp
     const targetVel = Math.min((mouse.current.speed || 0) * 0.05, 1);
     mat.uniforms.uVelocity.value = THREE.MathUtils.lerp(mat.uniforms.uVelocity.value, targetVel, 0.1);
 
     // Plane tilt
-    meshRef.current.rotation.y = THREE.MathUtils.lerp(meshRef.current.rotation.y, mouse.current.normalizedX * 0.18, 0.05);
-    meshRef.current.rotation.x = THREE.MathUtils.lerp(meshRef.current.rotation.x, -mouse.current.normalizedY * 0.18, 0.05);
+    meshRef.current.rotation.y = THREE.MathUtils.lerp(meshRef.current.rotation.y, mouse.current.normalizedX * 0.12, 0.05);
+    meshRef.current.rotation.x = THREE.MathUtils.lerp(meshRef.current.rotation.x, -mouse.current.normalizedY * 0.12, 0.05);
   });
 
   return (
     <mesh
       ref={meshRef}
-      scale={[3.4, 4.4, 1]}
+      scale={[3.6, 4.6, 1]}
       onPointerOver={() => {
         if (meshRef.current) {
           (meshRef.current.material as THREE.ShaderMaterial).uniforms.uHover.value = 1;
@@ -149,8 +144,9 @@ export function HeroPortraitPlane({ imageSrc, mouse, isPressed }: HeroPortraitPl
     >
       <planeGeometry args={[1, 1, 32, 32]} />
       <shaderMaterial
-        args={[HeroPortraitShader]}
+        args={[CutoutPortraitShader]}
         uniforms={uniforms}
+        transparent
         side={THREE.DoubleSide}
       />
     </mesh>
